@@ -5,8 +5,8 @@ export type QuestionDocument = HydratedDocument<Question>;
 
 @Schema({ timestamps: true })
 export class Question {
-  @Prop({ type: Types.ObjectId, ref: 'User', required: true })
-  userId: Types.ObjectId;
+  @Prop({ type: [Types.ObjectId], ref: 'User', required: true })
+  usersFinished: Types.ObjectId[];
 
   @Prop({ required: true, enum: ['multiple', 'boolean', 'open'] })
   type: string;
@@ -16,25 +16,17 @@ export class Question {
 
   @Prop({
     type: [String],
-    required: true,
-    validate: [
-      (val: string) => val.length == 4,
-      'Answers array must have 4 options.',
-    ],
   })
-  answers: string[];
+  options: string[];
 
   @Prop({ required: true })
   correctAnswer: string;
 
-  @Prop({ required: true, enum: ['easy', 'medium', 'hard'] })
-  difficulty: string;
+  @Prop({ required: true, type: Number, min: 0 })
+  score: number;
 
   @Prop()
   category: string;
-
-  @Prop({ default: false })
-  isPlayed: boolean;
 }
 
 export const QuestionSchema = SchemaFactory.createForClass(Question);
