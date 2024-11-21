@@ -3,6 +3,7 @@ import { HydratedDocument, Types } from 'mongoose';
 
 export type UserDocument = HydratedDocument<User>;
 
+// TODO change validation to class-validations https://docs.nestjs.com/techniques/validation
 @Schema({ timestamps: true })
 export class User {
   @Prop({ required: true, minlength: 2, maxlength: 50 })
@@ -14,7 +15,7 @@ export class User {
   @Prop({ required: true, minlength: 6 })
   password: string;
 
-  @Prop()
+  @Prop({ required: true, default: 0 })
   score: number;
 
   @Prop({ default: 'user', enum: ['user', 'admin'] })
