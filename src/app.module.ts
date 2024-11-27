@@ -2,8 +2,9 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { MongooseModule } from '@nestjs/mongoose';
-import { UsersModule } from './module/users/users.module';
+import { UsersModule } from 'src/module/users/users.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { QuestionsModule } from 'src/module/questions/questions.module';
 
 @Module({
   imports: [
@@ -14,13 +15,14 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
-        uri: configService.get<string>( // only this works to get the value
+        uri: configService.get<string>(
           'MONGO_URI',
           'mongodb://localhost:27017/nest',
         ),
       }),
     }),
     UsersModule,
+    QuestionsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

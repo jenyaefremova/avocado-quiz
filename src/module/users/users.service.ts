@@ -1,11 +1,15 @@
 import {
+  BadRequestException,
   ConflictException,
+  HttpException,
+  HttpStatus,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User, UserDocument } from 'src/schemas/user.schema';
+import { isValidObjectId } from 'mongoose';
 
 @Injectable()
 export class UsersService {
@@ -25,8 +29,27 @@ export class UsersService {
       throw new ConflictException(`User with this email already exists.`);
     }
 
-    const newUser = new this.userModel(createUserDto);
-    return newUser.save();
+    try {
+      const newUser = new this.userModel(createUserDto);
+      return await newUser.save();
+    } catch (error) {
+      if (error.name === 'ValidationError') {
+        throw new BadRequestException({
+          statusCode: HttpStatus.BAD_REQUEST,
+          error: 'ValidationError',
+          message: Object.values(error.errors).map((err: any) => err.message),
+        });
+      }
+    }
+
+    throw new HttpException(
+      {
+        statusCode: HttpStatus.BAD_REQUEST,
+        error: 'UnexpectedError',
+        message: 'An unexpected error occurred while creating the user.',
+      },
+      HttpStatus.BAD_REQUEST,
+    );
   }
 
   async getAllUsers(): Promise<User[]> {
@@ -37,18 +60,16 @@ export class UsersService {
     return users;
   }
 
-  async getFirstUser(): Promise<User> {
-    const firstUser = await this.userModel
-      .findOne()
-      .sort({ createdAt: 1 })
-      .exec();
-    if (!firstUser) {
-      throw new NotFoundException('No users found in the database');
+  async getUserById(id: string): Promise<User> {
+    if (!isValidObjectId(id)) {
+      throw new BadRequestException('Invalid user ID format');
     }
-    return firstUser;
-  }
 
-  async getUserById(id: string): Promise<User | null> {
-    return this.userModel.findById(id).exec();
+    const user = await this.userModel.findById(id).exec();
+    if (!user) {
+      throw new NotFoundException(`User with ID "${id}" not found`);
+    }
+
+    return user;
   }
 }
