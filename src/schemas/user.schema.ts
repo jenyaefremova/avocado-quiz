@@ -34,7 +34,7 @@ export class User {
   answers: {
     questionId: Types.ObjectId;
     answer: string;
-    isCorrect: boolean; // idk add or not
+    isCorrect: boolean;
   }[];
 }
 
