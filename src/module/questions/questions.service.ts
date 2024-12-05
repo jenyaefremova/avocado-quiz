@@ -3,22 +3,16 @@ import {
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Question, QuestionDocument } from 'src/schemas/question.schema';
 
 @Injectable()
 export class QuestionsService {
-  private readonly questionLimit: number;
-
   constructor(
     @InjectModel(Question.name)
     private readonly questionModel: Model<QuestionDocument>,
-    private readonly configService: ConfigService,
-  ) {
-    this.questionLimit = Number(this.configService.get('QUESTION_LIMIT')) || 3;
-  }
+  ) {}
 
   async create(createQuestionDto: Partial<Question>): Promise<Question> {
     try {
@@ -48,7 +42,7 @@ export class QuestionsService {
 
   async findAll(): Promise<Partial<Question>[]> {
     return this.questionModel
-      .find()
+      .find({ deletedAt: null })
       .select('-usersFinished -correctAnswer')
       .exec();
   }
@@ -58,6 +52,7 @@ export class QuestionsService {
       const questions = await this.questionModel
         .find({
           category: { $regex: new RegExp(`^${category}$`, 'i') }, // Case-insensitive match
+          deletedAt: null,
         })
         .select('-usersFinished -correctAnswer')
         .exec();
@@ -81,14 +76,14 @@ export class QuestionsService {
       throw new BadRequestException('Invalid question ID format');
     }
 
-    const deletedQuestion = await this.questionModel
-      .findByIdAndDelete(id)
+    const updatedQuestion = await this.questionModel
+      .findByIdAndUpdate(id, { deletedAt: new Date() }, { new: true })
       .exec();
 
-    if (!deletedQuestion) {
+    if (!updatedQuestion) {
       throw new NotFoundException(`Question with this ID not found`);
     }
 
-    return deletedQuestion;
+    return updatedQuestion;
   }
 }

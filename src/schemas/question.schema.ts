@@ -27,6 +27,9 @@ export class Question {
 
   @Prop()
   category: string;
+
+  @Prop({ type: Date, default: null })
+  deletedAt: Date | null;
 }
 
 export const QuestionSchema = SchemaFactory.createForClass(Question);

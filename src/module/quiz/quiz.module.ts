@@ -4,13 +4,17 @@ import { QuizController } from './quiz.controller';
 import { QuizService } from './quiz.service';
 import { Question, QuestionSchema } from 'src/schemas/question.schema';
 import { User, UserSchema } from 'src/schemas/user.schema';
+import { Quiz, QuizSchema } from 'src/schemas/quiz.schema';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
+    ConfigModule,
     MongooseModule.forFeature([
       { name: Question.name, schema: QuestionSchema },
+      { name: Quiz.name, schema: QuizSchema },
+      { name: User.name, schema: UserSchema },
     ]),
-    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
   ],
   controllers: [QuizController],
   providers: [QuizService],

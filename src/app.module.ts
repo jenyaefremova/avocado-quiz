@@ -5,8 +5,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { UsersModule } from 'src/module/users/users.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { QuestionsModule } from 'src/module/questions/questions.module';
-import { QuizModule } from './module/quiz/quiz.module';
-import { AnswersModule } from './module/answers/answers.module';
+import { QuizModule } from 'src/module/quiz/quiz.module';
 
 @Module({
   imports: [
@@ -26,7 +25,6 @@ import { AnswersModule } from './module/answers/answers.module';
     UsersModule,
     QuestionsModule,
     QuizModule,
-    AnswersModule,
   ],
   controllers: [AppController],
   providers: [AppService],
