@@ -1,7 +1,15 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UsersController } from './users.controller';
-import { MongooseModule } from '@nestjs/mongoose';
-import { User, UserSchema } from 'src/schemas/user.schema';
+import { User } from 'src/schemas/user.schema';
+import { getModelToken } from '@nestjs/mongoose';
+import { UsersService } from 'src/module/users/users.service';
+
+const mockMongooseTokens = [
+  {
+    provide: getModelToken(User.name),
+    useValue: User,
+  },
+];
 
 describe('UsersController', () => {
   let controller: UsersController;
@@ -9,8 +17,12 @@ describe('UsersController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [UsersController],
-      imports: [
-        MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+      providers: [
+        ...mockMongooseTokens,
+        {
+          provide: UsersService,
+          useValue: {},
+        },
       ],
     }).compile();
 
