@@ -16,6 +16,12 @@ export class QuestionsService {
 
   async create(createQuestionDto: Partial<Question>): Promise<Question> {
     try {
+      const existingQuestion = await this.questionModel
+        .findOne({ question: createQuestionDto.question })
+        .exec();
+      if (existingQuestion) {
+        throw new BadRequestException('Question already exists');
+      }
       const newQuestion = new this.questionModel(createQuestionDto);
       return await newQuestion.save();
     } catch (error) {
@@ -27,10 +33,24 @@ export class QuestionsService {
     createQuestionsDto: Partial<Question>[],
   ): Promise<Question[]> {
     try {
+      const questionsTexts = createQuestionsDto.map((q) => q.question);
+
+      const existingQuestions = await this.questionModel
+        .find({ question: { $in: questionsTexts } })
+        .exec();
+
+      if (existingQuestions.length > 0) {
+        const existingQuestionTexts = existingQuestions.map((q) => q.question);
+        throw new BadRequestException(
+          `Questions already exist: ${existingQuestionTexts.join(', ')}`,
+        );
+      }
+
       const newQuestions = await this.questionModel.insertMany(
         createQuestionsDto,
         { ordered: true },
       );
+
       return newQuestions;
     } catch (error) {
       throw new BadRequestException(

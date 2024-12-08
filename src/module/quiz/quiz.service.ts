@@ -45,7 +45,7 @@ export class QuizService {
             deletedAt: null,
           },
         },
-        { $sample: { size: this.questionLimit } },
+        { $sample: { size: this.questionLimit } }, // TODO: Add a limit as query param
         { $project: { usersFinished: 0, correctAnswer: 0 } },
       ])
       .exec();

@@ -8,7 +8,7 @@ export class Question {
   @Prop({ type: [Types.ObjectId], ref: 'User', required: true, default: [] })
   usersFinished: Types.ObjectId[];
 
-  @Prop({ required: true, enum: ['multiply', 'boolean', 'open'] })
+  @Prop({ required: true, enum: ['multiple', 'boolean', 'open'] })
   type: string;
 
   @Prop({ required: true })
