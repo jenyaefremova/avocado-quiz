@@ -6,21 +6,32 @@ export type QuizDocument = HydratedDocument<Quiz>;
 @Schema({ timestamps: true })
 export class Quiz {
   @Prop({ type: Types.ObjectId, ref: 'User', required: true })
-  userId: Types.ObjectId;
+  userID: Types.ObjectId;
 
   @Prop({
     type: [{ type: Types.ObjectId, ref: 'Question' }],
     required: true,
-    validate: [arrayLimit, 'Quiz must contain exactly 10 questions.'],
   })
   questions: Types.ObjectId[];
 
-  @Prop()
-  completedAt: Date;
-}
+  @Prop({
+    type: [
+      {
+        questionId: { type: Types.ObjectId, ref: 'Question', required: true },
+        answer: { type: String, required: true },
+        isCorrect: { type: Boolean, required: true },
+      },
+    ],
+    default: [],
+  })
+  answers: {
+    questionId: Types.ObjectId;
+    answer: string;
+    isCorrect: boolean;
+  }[];
 
-function arrayLimit(val: Types.ObjectId[]) {
-  return val.length === 10;
+  @Prop({ type: Date, default: null })
+  finishedAt: Date | null;
 }
 
 export const QuizSchema = SchemaFactory.createForClass(Quiz);
